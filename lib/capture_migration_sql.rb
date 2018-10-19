@@ -12,7 +12,7 @@ module CaptureMigrationSql
     # The `starting_with` argument can be used to specify which migration you
     # wish to start capturing SQL with. This can be useful if you are adding
     # this gem to an existing project with a history of migrations that you
-    # don't want to go back an edit.
+    # don't want to go back and edit.
     def capture(directory: nil, starting_with: 0)
       unless ActiveRecord::Migration.include?(MigrationExtension)
         ActiveRecord::Migration.prepend(MigrationExtension)
@@ -46,13 +46,13 @@ module CaptureMigrationSql
     def disable_sql_logging(&block)
       sql_logging(enabled: false, &block)
     end
-    
+
     # Enable SQL logging. You can call this method within a block where SQL
     # logging was disabled to renable it.
     def enable_sql_logging(&block)
       sql_logging(enabled: true, &block)
     end
-    
+
     # Use a different database connection for the block. You can use this
     # if your application has multiple databases to swap connections for
     # the migration. You can pass in either a database connection or an
@@ -132,6 +132,7 @@ module CaptureMigrationSql
           @sql_stream ||= nil
         end
 
+        # TODO: Hook into ActiveRecord::LogSubscriber to get the SQL generated
         def conn.execute(sql, name = nil)
           if sql_stream && !Thread.current[:capture_migration_sql_disabled]
             unless sql =~ /^SHOW/ || sql =~ /^SELECT.*FROM.*schema_migrations/ || sql =~ /^SELECT.*information_schema/m
