@@ -1,10 +1,10 @@
 # CaptureMigrationSql
 
-This gem add the ability to capture and persist the SQL executed by migrations. There are a couple of reasons why you may want to do this.
+This gem adds the ability to capture and persist the SQL statements executed by migrations. There are a couple of reasons why you may want to do this.
 
-1. Having a list of the SQL changes in a migration can allow a more thorough review of database changes during a code review since it eliminates. The Ruby schema directives in Rails are nice for simple tables and for documentation purposes, but if you need to tune your database for performance or data integrity, seeing the raw SQL can give you a better idea of exactly what each change involves.
+1. Having a list of SQL changes in a migration can allow a more thorough review of database changes during a code review. The Ruby schema directives in Rails are nice for simple tables and for documentation purposes, but if you need to tune your database for performance or data integrity, seeing the raw SQL can give you a better idea of exactly what each change involves.
 
-2. Not everyone gets to run database migrations in production. If you have a DBA who needs to approve and run all changes for security and performance reasons, you'll probably need to give them the SQL changes. This gem will log all those changes for you in a consistent place so that you don't have to hunt through your development logs or reverse engineer them from the Ruby code.
+2. Not everyone gets to run database migrations in production. If you have a DBA who needs to approve and run all changes for security and performance reasons, you'll probably need to give them the individual SQL changes. This gem logs all those changes for you in a consistent place so you don't have to hunt for them in your development logs or reverse engineer them from the Ruby code.
 
 ## Installation
 
@@ -30,10 +30,14 @@ Add this to a file in `config/initializers` in your Rails application:
 CaptureMigrationSql.capture
 ```
 
-This will log each migration to a file in the `db/migration_sql` directory. You can specify a different directory by passing the path the the `capture` method:
+This will log each migration to a file in the `db/migration_sql` directory. You can also specify a different directory by passing the path the the `capture` method. Additionally, you can specify a first migration to start with. This will avoid generating files for all previous versions.
 
 ```ruby
-CaptureMigrationSql.capture(tmp/migration_sql)
+# Create all files in the directory 'tmp/migration_sql'
+CaptureMigrationSql.capture(directory: "tmp/migration_sql")
+
+# Only capture migrations starting with version 20181010081254
+CaptureMigrationSql.capture(starting_with: 20181010081254)
 ```
 
 Within a migration, you can enable and disable capturing SQL within a block:
@@ -42,11 +46,11 @@ Within a migration, you can enable and disable capturing SQL within a block:
 def up
   disable_sql_logging do
     # SQL will not be logged here
-    
+
     enable_sql_logging do
       # SQL will be logged here
     end
-    
+
     # SQL will not be logged here
   end
 end
@@ -58,7 +62,7 @@ Finally, if you application uses multiple databases, you can specify which datab
 
 ```ruby
 def up
-   using_connection(other_database_connection, label: "Comment for file") do
+  using_connection(other_database_connection, label: "Comment for file") do
     # schema statements here will use other_database_connection instead of ActiveRecord::Base.connection
   end
 end
