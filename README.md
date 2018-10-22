@@ -1,5 +1,8 @@
 # CaptureMigrationSql
 
+[![Build Status](https://travis-ci.com/bdurand/capture_migration_sql.svg?branch=master)](https://travis-ci.com/bdurand/capture_migration_sql)
+[![Maintainability](https://api.codeclimate.com/v1/badges/17bbf5cb6eda022028fe/maintainability)](https://codeclimate.com/github/bdurand/capture_migration_sql/maintainability)
+
 This gem adds the ability to capture and persist the SQL statements executed by migrations. There are a couple of reasons why you may want to do this.
 
 1. Having a list of SQL changes in a migration can allow a more thorough review of database changes during a code review. The Ruby schema directives in Rails are nice for simple tables and for documentation purposes, but if you need to tune your database for performance or data integrity, seeing the raw SQL can give you a better idea of exactly what each change involves.
