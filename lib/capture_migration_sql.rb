@@ -14,7 +14,7 @@ module CaptureMigrationSql
     # The `starting_with` argument can be used to specify which migration you
     # wish to start capturing SQL with. This can be useful if you are adding
     # this gem to an existing project with a history of migrations that you
-    # don't want to go back an edit.
+    # don't want to go back and edit.
     def capture(directory: nil, starting_with: 0)
       unless ::ActiveRecord::Migration.include?(MigrationExtension)
         ::ActiveRecord::Migration.prepend(MigrationExtension)
