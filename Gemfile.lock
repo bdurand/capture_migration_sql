@@ -52,7 +52,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (>= 4.2, < 6.0)
+  activerecord (>= 4.2)
   appraisal
   bundler (~> 1.16)
   capture_migration_sql!
