@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    capture_migration_sql (1.0.0)
+    capture_migration_sql (1.0.1)
 
 GEM
   remote: https://rubygems.org/
