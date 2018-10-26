@@ -81,7 +81,7 @@ module CaptureMigrationSql
           ensure
             Thread.current[:capture_migration_sql_stream] = save_stream
           end
-          f.write("INSERT INTO schema_migrations (version) VALUES #{version.to_i};\n")
+          f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
         end
       else
         File.unlink(output_file) if output_file && File.exist?(output_file)

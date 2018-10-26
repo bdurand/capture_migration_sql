@@ -31,7 +31,7 @@ describe CaptureMigrationSql do
 
         SELECT 1;
 
-        INSERT INTO schema_migrations (version) VALUES 20181008000000;
+        INSERT INTO schema_migrations (version) VALUES ('20181008000000');
       SQL
 
       migration.migrate(:down)
@@ -56,7 +56,7 @@ describe CaptureMigrationSql do
 
           SELECT 5;
 
-          INSERT INTO schema_migrations (version) VALUES 20181008000000;
+          INSERT INTO schema_migrations (version) VALUES ('20181008000000');
         SQL
       end
     end
@@ -88,7 +88,7 @@ describe CaptureMigrationSql do
 
           -- END Other database
 
-          INSERT INTO schema_migrations (version) VALUES 20181008000000;
+          INSERT INTO schema_migrations (version) VALUES ('20181008000000');
         SQL
 
         other_db_exists = OtherClass.connection.select_one("SELECT name FROM sqlite_master WHERE type='table' AND name = 'test_3'")
@@ -114,7 +114,7 @@ describe CaptureMigrationSql do
 
           -- END OtherClass
 
-          INSERT INTO schema_migrations (version) VALUES 20181008000000;
+          INSERT INTO schema_migrations (version) VALUES ('20181008000000');
         SQL
 
         other_db_exists = OtherClass.connection.select_one("SELECT name FROM sqlite_master WHERE type='table' AND name = 'test_4'")
