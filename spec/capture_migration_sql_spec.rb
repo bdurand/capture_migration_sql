@@ -1,6 +1,6 @@
-require_relative './spec_helper'
+require_relative "./spec_helper"
 
-require 'tmpdir'
+require "tmpdir"
 
 describe CaptureMigrationSql do
   before :all do
@@ -36,6 +36,12 @@ describe CaptureMigrationSql do
 
       migration.migrate(:down)
       expect(File.exist?(file)).to eq false
+    end
+
+    it "should not overwrite an existing sql file when migrating up" do
+      File.write(file, "foo")
+      migration.migrate(:up)
+      expect(File.read(file)).to eq "foo"
     end
 
     context "using migration two" do

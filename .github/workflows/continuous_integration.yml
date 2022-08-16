@@ -1,0 +1,65 @@
+name: Continuous Integration
+on:
+  push:
+    branches:
+      - master
+      - actions-*
+    tags:
+      - v*
+  pull_request:
+env:
+  BUNDLE_CLEAN: "true"
+  BUNDLE_PATH: vendor/bundle
+  BUNDLE_JOBS: 3
+  BUNDLE_RETRY: 3
+jobs:
+  specs:
+    name: Run specs
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - ruby: "ruby"
+            standardrb: true
+          - ruby: "3.1"
+            appraisal: "activerecord_7.0"
+          - ruby: "3.0"
+            appraisal: "activerecord_6.1"
+          - ruby: "2.7"
+            appraisal: "activerecord_6.0"
+          - ruby: "2.6"
+            appraisal: "activerecord_5.2"
+          - ruby: "2.6"
+            appraisal: "activerecord_5.1"
+          - ruby: "2.6"
+            appraisal: "activerecord_5.0"
+          - ruby: "2.5"
+            appraisal: "activerecord_4.2"
+            bundler: "1.17.3"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Ruby ${{ matrix.ruby }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "${{ matrix.ruby }}"
+      - name: Setup bundler
+        if: matrix.bundler != ''
+        run: |
+          gem uninstall bundler --all
+          gem install bundler --no-document --version ${{ matrix.bundler }}
+      - name: Set Appraisal bundle
+        if: matrix.appraisal != ''
+        run: |
+          echo "using gemfile gemfiles/${{ matrix.appraisal }}.gemfile"
+          bundle config set gemfile "gemfiles/${{ matrix.appraisal }}.gemfile"
+      - name: Install bundler
+        run: |
+          bundle update
+      - name: Run specs
+        run: |
+          bundle exec rake spec
+      - name: Run standardrb
+        if:   matrix.standardrb == true
+        run:  bundle exec rake standard

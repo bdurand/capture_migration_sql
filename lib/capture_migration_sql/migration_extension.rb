@@ -70,18 +70,22 @@ module CaptureMigrationSql
       migration_sql_dir = CaptureMigrationSql.directory
       output_file = File.join(migration_sql_dir, "#{version}_#{name.underscore}.sql") if version && name
       if output_file && direction == :up && version.to_i >= CaptureMigrationSql.starting_with_version
-        Dir.mkdir(migration_sql_dir) unless File.exist?(migration_sql_dir)
-        SqlSubscriber.attach_if_necessary
-        File.open(output_file, "w") do |f|
-          f.write("--\n-- #{name} : #{version}\n--\n\n")
-          save_stream = Thread.current[:capture_migration_sql_stream]
-          begin
-            Thread.current[:capture_migration_sql_stream] = f
-            sql_logging(enabled: true, &block)
-          ensure
-            Thread.current[:capture_migration_sql_stream] = save_stream
+        if File.exist?(output_file)
+          yield
+        else
+          Dir.mkdir(migration_sql_dir) unless File.exist?(migration_sql_dir)
+          SqlSubscriber.attach_if_necessary
+          File.open(output_file, "w") do |f|
+            f.write("--\n-- #{name} : #{version}\n--\n\n")
+            save_stream = Thread.current[:capture_migration_sql_stream]
+            begin
+              Thread.current[:capture_migration_sql_stream] = f
+              sql_logging(enabled: true, &block)
+            ensure
+              Thread.current[:capture_migration_sql_stream] = save_stream
+            end
+            f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
           end
-          f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
         end
       else
         File.unlink(output_file) if output_file && File.exist?(output_file)
