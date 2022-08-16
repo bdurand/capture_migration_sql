@@ -27,7 +27,7 @@ end
 
 RAILS_4_RELEASES = ["4.2"].freeze
 
-RAILS_5_RELEASES.each do |version|
+RAILS_4_RELEASES.each do |version|
   appraise "activerecord-#{version.split('.').take(2).join('.')}" do
     gem "activerecord", "~> #{version}.0"
     gem "sqlite3", "~> 1.3.0"
