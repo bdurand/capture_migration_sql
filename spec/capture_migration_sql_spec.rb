@@ -39,7 +39,7 @@ describe CaptureMigrationSql do
     end
 
     it "should not overwrite an existing sql file when migrating up" do
-      File.open(file, "w") { |f| f.write("foo") }
+      File.write(file, "foo")
       migration.migrate(:up)
       expect(File.read(file)).to eq "foo"
     end
