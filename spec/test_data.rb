@@ -18,7 +18,7 @@ class TestMigrationTwo < migration_class
       enable_sql_logging do
         execute "SELECT 3"
       end
-      execute "SELECT 4"     
+      execute "SELECT 4"
     end
     execute "SELECT 5"
   end

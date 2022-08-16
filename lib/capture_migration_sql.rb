@@ -3,7 +3,6 @@ require_relative "capture_migration_sql/sql_subscriber"
 require_relative "capture_migration_sql/version"
 
 module CaptureMigrationSql
-
   class << self
     # Call this method in an initializer to invoke dumping the SQL executed
     # during migrations in to a file.

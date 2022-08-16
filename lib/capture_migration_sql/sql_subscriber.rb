@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'active_support/subscriber'
+require "active_support/subscriber"
 
 # Subscriber that is attached to ActiveRecord and will handle writing
 # migration SQL to the output stream.
