@@ -22,6 +22,8 @@ jobs:
         include:
           - ruby: "ruby"
             standardrb: true
+          - ruby: "3.2"
+            appraisal: "activerecord_7.1"
           - ruby: "3.1"
             appraisal: "activerecord_7.0"
           - ruby: "3.0"
@@ -37,6 +39,7 @@ jobs:
           - ruby: "2.5"
             appraisal: "activerecord_4.2"
             bundler: "1.17.3"
+            gemfile: gemfiles/activerecord_4.2.gemfile
     steps:
       - name: Checkout
         uses: actions/checkout@v4
