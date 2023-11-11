@@ -1,4 +1,4 @@
-migration_class = (ActiveRecord.version.to_s.to_i < 5 ? ActiveRecord::Migration : ActiveRecord::Migration[5.0])
+migration_class = ((ActiveRecord.version.to_s.to_i < 5) ? ActiveRecord::Migration : ActiveRecord::Migration[5.0])
 
 class TestMigrationOne < migration_class
   def up

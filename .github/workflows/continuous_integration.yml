@@ -40,6 +40,8 @@ jobs:
             appraisal: "activerecord_4.2"
             bundler: "1.17.3"
             gemfile: gemfiles/activerecord_4.2.gemfile
+    env:
+      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,7 +59,7 @@ jobs:
         run: |
           echo "using gemfile gemfiles/${{ matrix.appraisal }}.gemfile"
           bundle config set gemfile "gemfiles/${{ matrix.appraisal }}.gemfile"
-      - name: Install bundler
+      - name: Install bundle
         run: |
           bundle update
       - name: Run specs
