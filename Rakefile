@@ -4,8 +4,12 @@ rescue LoadError
   puts "You must `gem install bundler` and `bundle install` to run rake tasks"
 end
 
-require "yard"
-YARD::Rake::YardocTask.new(:yard)
+begin
+  require "yard"
+  YARD::Rake::YardocTask.new(:yard)
+rescue LoadError
+  # Yard is not available
+end
 
 require "bundler/gem_tasks"
 
