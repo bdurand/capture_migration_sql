@@ -75,22 +75,33 @@ module CaptureMigrationSql
         else
           Dir.mkdir(migration_sql_dir) unless File.exist?(migration_sql_dir)
           SqlSubscriber.attach_if_necessary
+          retval = nil
+          success = false
           File.open(output_file, "w") do |f|
-            f.write("--\n-- #{name} : #{version}\n--\n\n")
-            save_stream = Thread.current[:capture_migration_sql_stream]
-            begin
-              Thread.current[:capture_migration_sql_stream] = f
-              sql_logging(enabled: true, &block)
-            ensure
-              Thread.current[:capture_migration_sql_stream] = save_stream
-            end
-            f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
+            retval = capture_migration_sql(f, &block)
+            success = true
+          ensure
+            File.unlink(output_file) unless success
           end
+          retval
         end
       else
         File.unlink(output_file) if output_file && File.exist?(output_file)
         yield
       end
+    end
+
+    def capture_migration_sql(f, &block)
+      f.write("--\n-- #{name} : #{version}\n--\n\n")
+      save_stream = Thread.current[:capture_migration_sql_stream]
+      begin
+        Thread.current[:capture_migration_sql_stream] = f
+        retval = sql_logging(enabled: true, &block)
+      ensure
+        Thread.current[:capture_migration_sql_stream] = save_stream
+      end
+      f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
+      retval
     end
   end
 end

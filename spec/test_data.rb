@@ -44,6 +44,12 @@ class TestMigrationFour < migration_class
   end
 end
 
+class FailedMigration < migration_class
+  def up
+    raise "This migration fails"
+  end
+end
+
 class OtherClass < ActiveRecord::Base
   establish_connection("adapter" => "sqlite3", "database" => ":memory:")
 end
