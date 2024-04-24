@@ -44,6 +44,15 @@ describe CaptureMigrationSql do
       expect(File.read(file)).to eq "foo"
     end
 
+    context "when the migration fails" do
+      let(:migration) { FailedMigration.new("FailedMigration", version) }
+
+      it "should delete the generated SQL file" do
+        expect { migration.migrate(:up) }.to raise_error(RuntimeError)
+        expect(File.exist?(file)).to eq false
+      end
+    end
+
     context "using migration two" do
       let(:migration) { TestMigrationTwo.new("TestMigrationTwo", version) }
 
