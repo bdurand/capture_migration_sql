@@ -27,7 +27,7 @@ module CaptureMigrationSql
       @sql_directory if defined?(@sql_directory)
     end
 
-    # Return the migration version number to start capaturing SQL.
+    # Return the migration version number to start capturing SQL.
     def starting_with_version
       @starting_with_version if defined?(@starting_with_version)
     end
@@ -37,7 +37,7 @@ module CaptureMigrationSql
       !!Thread.current[:capture_migration_sql_enabled]
     end
 
-    # Return the strema migration SQL is being written to.
+    # Return the stream migration SQL is being written to.
     def capture_stream
       Thread.current[:capture_migration_sql_stream]
     end

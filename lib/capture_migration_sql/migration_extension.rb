@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "fileutils"
+
 # Extension methods for ActiveRecord::Migration class.
 module CaptureMigrationSql
   module MigrationExtension
@@ -18,7 +20,7 @@ module CaptureMigrationSql
     end
 
     # Enable SQL logging. You can call this method within a block where SQL
-    # logging was disabled to renable it.
+    # logging was disabled to re-enable it.
     def enable_sql_logging(&block)
       sql_logging(enabled: true, &block)
     end
@@ -46,7 +48,7 @@ module CaptureMigrationSql
       save_connection = @connection
       begin
         @connection = connection
-        stream = CaptureMigrationSql.capture_stream
+        stream = CaptureMigrationSql.capture_stream if CaptureMigrationSql.capture_enabled?
         stream.write("-- BEGIN #{label}\n\n") if label && stream
         retval = yield
         stream.write("-- END #{label}\n\n") if label && stream
@@ -73,21 +75,23 @@ module CaptureMigrationSql
         if File.exist?(output_file)
           yield
         else
-          Dir.mkdir(migration_sql_dir) unless File.exist?(migration_sql_dir)
+          FileUtils.mkdir_p(migration_sql_dir)
           SqlSubscriber.attach_if_necessary
-          retval = nil
-          success = false
-          File.open(output_file, "w") do |f|
-            retval = capture_migration_sql(f, &block)
-            success = true
+          temp_file = "#{output_file}.tmp.#{Process.pid}"
+          begin
+            retval = File.open(temp_file, "w") do |f|
+              capture_migration_sql(f, &block)
+            end
+            File.rename(temp_file, output_file)
+            retval
           ensure
-            File.unlink(output_file) unless success
+            File.unlink(temp_file) if File.exist?(temp_file)
           end
-          retval
         end
       else
+        retval = yield
         File.unlink(output_file) if output_file && File.exist?(output_file)
-        yield
+        retval
       end
     end
 
@@ -100,8 +104,24 @@ module CaptureMigrationSql
       ensure
         Thread.current[:capture_migration_sql_stream] = save_stream
       end
-      f.write("INSERT INTO schema_migrations (version) VALUES ('#{version.to_i}');\n")
+      f.write("INSERT INTO #{schema_migrations_table_name} (version) VALUES ('#{version.to_i}');\n")
       retval
+    end
+
+    # Resolve the schema migrations table name so that the generated SQL
+    # honors table name prefixes, suffixes, and custom table names.
+    def schema_migrations_table_name
+      if defined?(ActiveRecord::SchemaMigration) && ActiveRecord::SchemaMigration.respond_to?(:table_name)
+        ActiveRecord::SchemaMigration.table_name
+      else
+        connection = ActiveRecord::Base.connection
+        schema_migration = if connection.respond_to?(:schema_migration)
+          connection.schema_migration
+        elsif connection.pool.respond_to?(:schema_migration)
+          connection.pool.schema_migration
+        end
+        schema_migration ? schema_migration.table_name : "schema_migrations"
+      end
     end
   end
 end

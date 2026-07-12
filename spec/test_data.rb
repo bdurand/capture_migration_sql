@@ -50,6 +50,34 @@ class FailedMigration < migration_class
   end
 end
 
+class FailedDownMigration < migration_class
+  def up
+    execute "SELECT 1"
+  end
+
+  def down
+    raise "This migration fails on down"
+  end
+end
+
+class WhitespaceMigration < migration_class
+  def up
+    execute "SELECT 1"
+    execute "\n  EXPLAIN SELECT 2"
+  end
+end
+
+class DisabledLabelMigration < migration_class
+  def up
+    execute "SELECT 1"
+    disable_sql_logging do
+      using_connection(OtherClass, label: "Hidden") do
+        execute "SELECT 2"
+      end
+    end
+  end
+end
+
 class OtherClass < ActiveRecord::Base
   establish_connection("adapter" => "sqlite3", "database" => ":memory:")
 end
