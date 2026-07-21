@@ -2,17 +2,15 @@ name: Continuous Integration
 on:
   push:
     branches:
-      - master
+      - main
       - actions-*
     tags:
       - v*
   pull_request:
+    branches-ignore:
+      - actions-*
   workflow_dispatch:
-env:
-  BUNDLE_CLEAN: "true"
-  BUNDLE_PATH: vendor/bundle
-  BUNDLE_JOBS: 3
-  BUNDLE_RETRY: 3
+
 jobs:
   specs:
     name: Run specs
@@ -23,6 +21,12 @@ jobs:
         include:
           - ruby: "ruby"
             standardrb: true
+          - ruby: "4.0"
+            appraisal: "activerecord_8.1"
+          - ruby: "3.4"
+            appraisal: "activerecord_8.0"
+          - ruby: "3.3"
+            appraisal: "activerecord_7.2"
           - ruby: "3.2"
             appraisal: "activerecord_7.1"
           - ruby: "3.1"
@@ -33,39 +37,17 @@ jobs:
             appraisal: "activerecord_6.0"
           - ruby: "2.6"
             appraisal: "activerecord_5.2"
-          - ruby: "2.6"
-            appraisal: "activerecord_5.1"
-          - ruby: "2.6"
-            appraisal: "activerecord_5.0"
-          - ruby: "2.5"
-            appraisal: "activerecord_4.2"
-            bundler: "1.17.3"
-            gemfile: gemfiles/activerecord_4.2.gemfile
-    env:
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Ruby ${{ matrix.ruby }}
-        uses: ruby/setup-ruby@v1
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ruby-version: "${{ matrix.ruby }}"
-      - name: Setup bundler
-        if: matrix.bundler != ''
-        run: |
-          gem uninstall bundler --all
-          gem install bundler --no-document --version ${{ matrix.bundler }}
-      - name: Set Appraisal bundle
-        if: matrix.appraisal != ''
-        run: |
-          echo "using gemfile gemfiles/${{ matrix.appraisal }}.gemfile"
-          bundle config set gemfile "gemfiles/${{ matrix.appraisal }}.gemfile"
-      - name: Install bundle
-        run: |
-          bundle update
-      - name: Run specs
-        run: |
-          bundle exec rake spec
-      - name: Run standardrb
-        if:   matrix.standardrb == true
-        run:  bundle exec rake standard
+          persist-credentials: false
+      - name: Ruby CI
+        uses: bdurand/github-actions/ruby-ci@b7560883d5f8557f5d69fe8bd82721bbb5ed76df # v1.0.4
+        with:
+          ruby: ${{ matrix.ruby }}
+          appraisal: ${{ matrix.appraisal }}
+          bundler: ${{ matrix.bundler }}
+          standardrb: ${{ matrix.standardrb }}
+          yard: ${{ matrix.yard }}
+          frozen_strings: ${{ matrix.frozen_strings }}

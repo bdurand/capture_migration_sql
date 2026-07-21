@@ -1,35 +1,39 @@
-RAILS_7_RELEASES = ["7.0", "7.1"].freeze
-
-RAILS_7_RELEASES.each do |version|
-  appraise "activerecord-#{version.split(".").take(2).join(".")}" do
-    gem "activerecord", "~> #{version}.0"
-    gem "sqlite3", "~> 1.4.0"
-  end
+appraise "activerecord-8.1" do
+  gem "activerecord", "~> 8.1.0"
+  gem "sqlite3", "~> 2.0"
 end
 
-RAILS_6_RELEASES = ["6.0", "6.1"].freeze
-
-RAILS_6_RELEASES.each do |version|
-  appraise "activerecord-#{version.split(".").take(2).join(".")}" do
-    gem "activerecord", "~> #{version}.0"
-    gem "sqlite3", "~> 1.4.0"
-  end
+appraise "activerecord-8.0" do
+  gem "activerecord", "~> 8.0.0"
+  gem "sqlite3", "~> 2.0"
 end
 
-RAILS_5_RELEASES = ["5.2", "5.1", "5.0"].freeze
-
-RAILS_5_RELEASES.each do |version|
-  appraise "activerecord-#{version.split(".").take(2).join(".")}" do
-    gem "activerecord", "~> #{version}.0"
-    gem "sqlite3", "~> 1.3.0"
-  end
+appraise "activerecord-7.2" do
+  gem "activerecord", "~> 7.2.0"
+  gem "sqlite3", "~> 1.4.0"
 end
 
-RAILS_4_RELEASES = ["4.2"].freeze
+appraise "activerecord-7.1" do
+  gem "activerecord", "~> 7.1.0"
+  gem "sqlite3", "~> 1.4.0"
+end
 
-RAILS_4_RELEASES.each do |version|
-  appraise "activerecord-#{version.split(".").take(2).join(".")}" do
-    gem "activerecord", "~> #{version}.0"
-    gem "sqlite3", "~> 1.3.0"
-  end
+appraise "activerecord-7.0" do
+  gem "activerecord", "~> 7.0.0"
+  gem "sqlite3", "~> 1.4.0"
+end
+
+appraise "activerecord-6.1" do
+  gem "activerecord", "~> 6.1.0"
+  gem "sqlite3", "~> 1.4.0"
+end
+
+appraise "activerecord-6.0" do
+  gem "activerecord", "~> 6.0.0"
+  gem "sqlite3", "~> 1.4.0"
+end
+
+appraise "activerecord-5.2" do
+  gem "activerecord", "~> 5.2.0"
+  gem "sqlite3", "~> 1.3.0"
 end

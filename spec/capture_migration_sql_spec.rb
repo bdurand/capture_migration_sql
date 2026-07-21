@@ -1,8 +1,8 @@
-require_relative "spec_helper"
+require "spec_helper"
 
 require "tmpdir"
 
-describe CaptureMigrationSql do
+RSpec.describe CaptureMigrationSql do
   before :all do
     CaptureMigrationSql.capture(directory: Dir.tmpdir, starting_with: 20170101000000)
   end
@@ -50,6 +50,70 @@ describe CaptureMigrationSql do
       it "should delete the generated SQL file" do
         expect { migration.migrate(:up) }.to raise_error(RuntimeError)
         expect(File.exist?(file)).to eq false
+        expect(Dir.glob("#{file}.tmp.*")).to eq []
+      end
+    end
+
+    context "when the down migration fails" do
+      let(:migration) { FailedDownMigration.new("FailedDownMigration", version) }
+
+      it "should keep the SQL file when migrating down fails" do
+        migration.migrate(:up)
+        expect(File.exist?(file)).to eq true
+        expect { migration.migrate(:down) }.to raise_error(RuntimeError)
+        expect(File.exist?(file)).to eq true
+      end
+    end
+
+    context "when SQL has leading whitespace" do
+      let(:migration) { WhitespaceMigration.new("WhitespaceMigration", version) }
+
+      it "should still filter ignored statements" do
+        migration.migrate(:up)
+        expect(File.read(file)).to eq <<~SQL
+          --
+          -- WhitespaceMigration : 20181008000000
+          --
+
+          SELECT 1;
+
+          INSERT INTO schema_migrations (version) VALUES ('20181008000000');
+        SQL
+      end
+    end
+
+    context "with a custom schema migrations table name" do
+      let(:migration) { CustomSchemaMigrationsTableMigration.new("CustomSchemaMigrationsTableMigration", version) }
+
+      it "filters selects from the resolved table name and writes the insert to it" do
+        allow(CaptureMigrationSql).to receive(:schema_migrations_table_name).and_return("migration_log")
+        migration.migrate(:up)
+        expect(File.read(file)).to eq <<~SQL
+          --
+          -- CustomSchemaMigrationsTableMigration : 20181008000000
+          --
+
+          SELECT 1;
+
+          INSERT INTO migration_log (version) VALUES ('20181008000000');
+        SQL
+      end
+    end
+
+    context "when using_connection is called with SQL logging disabled" do
+      let(:migration) { DisabledLabelMigration.new("DisabledLabelMigration", version) }
+
+      it "should not write the connection label comments" do
+        migration.migrate(:up)
+        expect(File.read(file)).to eq <<~SQL
+          --
+          -- DisabledLabelMigration : 20181008000000
+          --
+
+          SELECT 1;
+
+          INSERT INTO schema_migrations (version) VALUES ('20181008000000');
+        SQL
       end
     end
 
