@@ -10,10 +10,9 @@ module CaptureMigrationSql
 
     SHOW_STATEMENT = /\ASHOW\b/i
     EXPLAIN_STATEMENT = /\AEXPLAIN\b/i
-    SELECT_SCHEMA_MIGRATIONS = /\ASELECT.*FROM.*schema_migrations/im
     SELECT_INFORMATION_SCHEMA = /\ASELECT.*information_schema/im
     SQLLITE_VERSION = /\ASELECT sqlite_version\(/i
-    IGNORE_STATEMENTS = Regexp.union(SHOW_STATEMENT, EXPLAIN_STATEMENT, SELECT_SCHEMA_MIGRATIONS, SELECT_INFORMATION_SCHEMA, SQLLITE_VERSION)
+    IGNORE_STATEMENTS = Regexp.union(SHOW_STATEMENT, EXPLAIN_STATEMENT, SELECT_INFORMATION_SCHEMA, SQLLITE_VERSION)
 
     ATTACH_MUTEX = Mutex.new
 
@@ -39,9 +38,22 @@ module CaptureMigrationSql
 
       sql = sql.strip
       return if IGNORE_STATEMENTS.match(sql)
+      return if schema_migrations_query?(sql)
 
       sql = "#{sql};" unless sql.end_with?(";")
       stream.write("#{sql}\n\n")
+    end
+
+    private
+
+    # Ignore ActiveRecord's own reads of the schema migrations table. The
+    # table name is resolved at runtime so that custom table names and any
+    # table name prefix or suffix are matched, staying consistent with the
+    # name written to the SQL file.
+    def schema_migrations_query?(sql)
+      table_name = CaptureMigrationSql.schema_migrations_table_name
+      return false if table_name.nil? || table_name.empty?
+      /\ASELECT.*FROM.*#{Regexp.escape(table_name)}/im.match?(sql)
     end
   end
 end

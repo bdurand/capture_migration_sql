@@ -78,6 +78,16 @@ class DisabledLabelMigration < migration_class
   end
 end
 
+class CustomSchemaMigrationsTableMigration < migration_class
+  def up
+    disable_sql_logging do
+      execute "CREATE TABLE migration_log (version varchar)"
+    end
+    execute "SELECT 1"
+    execute "SELECT version FROM migration_log"
+  end
+end
+
 class OtherClass < ActiveRecord::Base
   establish_connection("adapter" => "sqlite3", "database" => ":memory:")
 end

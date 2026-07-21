@@ -77,7 +77,7 @@ module CaptureMigrationSql
         else
           FileUtils.mkdir_p(migration_sql_dir)
           SqlSubscriber.attach_if_necessary
-          temp_file = "#{output_file}.tmp.#{Process.pid}"
+          temp_file = "#{output_file}.tmp.#{Process.pid}.#{Thread.current.object_id}"
           begin
             retval = File.open(temp_file, "w") do |f|
               capture_migration_sql(f, &block)
@@ -104,24 +104,8 @@ module CaptureMigrationSql
       ensure
         Thread.current[:capture_migration_sql_stream] = save_stream
       end
-      f.write("INSERT INTO #{schema_migrations_table_name} (version) VALUES ('#{version.to_i}');\n")
+      f.write("INSERT INTO #{CaptureMigrationSql.schema_migrations_table_name} (version) VALUES ('#{version.to_i}');\n")
       retval
-    end
-
-    # Resolve the schema migrations table name so that the generated SQL
-    # honors table name prefixes, suffixes, and custom table names.
-    def schema_migrations_table_name
-      if defined?(ActiveRecord::SchemaMigration) && ActiveRecord::SchemaMigration.respond_to?(:table_name)
-        ActiveRecord::SchemaMigration.table_name
-      else
-        connection = ActiveRecord::Base.connection
-        schema_migration = if connection.respond_to?(:schema_migration)
-          connection.schema_migration
-        elsif connection.pool.respond_to?(:schema_migration)
-          connection.pool.schema_migration
-        end
-        schema_migration ? schema_migration.table_name : "schema_migrations"
-      end
     end
   end
 end

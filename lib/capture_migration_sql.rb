@@ -41,5 +41,23 @@ module CaptureMigrationSql
     def capture_stream
       Thread.current[:capture_migration_sql_stream]
     end
+
+    # Resolve the schema migrations table name so that both the SQL that is
+    # written to the file and the statement filter honor custom table names
+    # and any table name prefix or suffix. Falls back to "schema_migrations"
+    # if the name cannot be determined.
+    def schema_migrations_table_name
+      if defined?(ActiveRecord::SchemaMigration) && ActiveRecord::SchemaMigration.respond_to?(:table_name)
+        ActiveRecord::SchemaMigration.table_name
+      else
+        connection = ActiveRecord::Base.connection
+        schema_migration = if connection.respond_to?(:schema_migration)
+          connection.schema_migration
+        elsif connection.pool.respond_to?(:schema_migration)
+          connection.pool.schema_migration
+        end
+        schema_migration ? schema_migration.table_name : "schema_migrations"
+      end
+    end
   end
 end

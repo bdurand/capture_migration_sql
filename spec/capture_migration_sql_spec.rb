@@ -82,6 +82,24 @@ describe CaptureMigrationSql do
       end
     end
 
+    context "with a custom schema migrations table name" do
+      let(:migration) { CustomSchemaMigrationsTableMigration.new("CustomSchemaMigrationsTableMigration", version) }
+
+      it "filters selects from the resolved table name and writes the insert to it" do
+        allow(CaptureMigrationSql).to receive(:schema_migrations_table_name).and_return("migration_log")
+        migration.migrate(:up)
+        expect(File.read(file)).to eq <<~SQL
+          --
+          -- CustomSchemaMigrationsTableMigration : 20181008000000
+          --
+
+          SELECT 1;
+
+          INSERT INTO migration_log (version) VALUES ('20181008000000');
+        SQL
+      end
+    end
+
     context "when using_connection is called with SQL logging disabled" do
       let(:migration) { DisabledLabelMigration.new("DisabledLabelMigration", version) }
 
