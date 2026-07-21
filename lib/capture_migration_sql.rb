@@ -18,7 +18,7 @@ module CaptureMigrationSql
       unless ::ActiveRecord::Migration.include?(MigrationExtension)
         ::ActiveRecord::Migration.prepend(MigrationExtension)
       end
-      @sql_directory = (directory || Rails.root + "db" + "migration_sql")
+      @sql_directory = directory || Rails.root + "db" + "migration_sql"
       @starting_with_version = starting_with.to_i
     end
 

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `INSERT INTO schema_migrations` statement written to SQL files now honors custom schema migrations table names and table name prefixes and suffixes.
 - Connection labels from `using_connection` are no longer written to the SQL file when SQL logging is disabled.
 
+### Changed
+
+- Rails 5.2 and Ruby 2.6 are the minimum supported versions.
+
 ## 1.0.4
 
 ### Fixed

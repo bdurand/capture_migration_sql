@@ -1,8 +1,8 @@
-require_relative "spec_helper"
+require "spec_helper"
 
 require "tmpdir"
 
-describe CaptureMigrationSql do
+RSpec.describe CaptureMigrationSql do
   before :all do
     CaptureMigrationSql.capture(directory: Dir.tmpdir, starting_with: 20170101000000)
   end
