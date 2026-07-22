@@ -1,6 +1,6 @@
 .DS_Store
 
-/.bundle/
+.bundle/
 /vendor/bundle
 /lib/bundler/man/
 
@@ -11,8 +11,8 @@
 
 /spec/reports/
 /spec/examples.txt
-/.yardoc/
-/_yardoc/
+.yardoc/
+_yardoc/
 /doc/
 /rdoc/
 /coverage/
@@ -30,4 +30,4 @@ gemfiles/*.gemfile.lock
 .claude/
 .conductor/
 .cursor/
-/.config
+.config
